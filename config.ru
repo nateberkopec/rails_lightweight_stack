@@ -36,15 +36,6 @@ class MyApp < Rails::Application
   # Silence deprecation warning about production log levels.
   config.log_level = :debug
 
-  # Here you could remove some middlewares, for example
-  # Rack::Lock, AD::Flash and AD::BestStandardsSupport below.
-  # The remaining stack is printed on rackup (for fun!).
-  # Rails 4 will have config.middleware.api_only! to get
-  # rid of browser related middleware.
-  config.middleware.delete "Rack::Lock"
-  config.middleware.delete "ActionDispatch::Flash"
-  config.middleware.delete "ActionDispatch::BestStandardsSupport"
-
   # We need a secret token for session, cookies, etc.
   config.secret_key_base = "49837489qkuweoiuoqwehisuakshdjksadhaisdy78o34y138974xyqp9rmye8yrpiokeuioqwzyoiuxftoyqiuxrhm3iou1hrzmjk"
 end
