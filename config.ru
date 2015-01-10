@@ -17,13 +17,20 @@
 #   require "rails"
 #   require "rails/all"
 
-# The following lines should come as no surprise. Except by
+# The following lines should come as no surprise. Except by using
 # ActionController::Metal, it follows the same structure of
 # config/application.rb, config/environment.rb and config.ru
-# existing in any Rails 3 app. Here they are simply in one
+# existing in any Rails 4 app. Here they are simply in one
 # file and without the comments.
 require "rails"
-require "rails/all"
+# We're only going to load the parts of Rails we need for this example. Usually,
+# you would just require "rails/all", requiring all of the below parts at once.
+require "action_controller"
+# require "active_record"
+# require "action_view"
+# require "action_mailer"
+# require "rails/test_unit"
+# require "sprockets"
 
 class MyApp < Rails::Application
   routes.append do
