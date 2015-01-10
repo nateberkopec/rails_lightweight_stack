@@ -56,7 +56,7 @@ class HelloController < ActionController::Metal
   include ActionController::Rendering
 
   def world
-    render :text => "Hello world!"
+    render text: "Hello world!"
   end
 end
 
