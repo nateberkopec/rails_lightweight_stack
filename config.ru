@@ -1,6 +1,6 @@
 # Run this file with:
 #
-#   bundle exec RAILS_ENV=production rackup -p 3000 -s thin
+#   RAILS_ENV=production bundle exec rackup -p 3000 -s thin
 #
 # And access:
 #
