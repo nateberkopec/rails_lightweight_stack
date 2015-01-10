@@ -27,11 +27,14 @@ require "rails/all"
 
 class MyApp < Rails::Application
   routes.append do
-    match "/hello/world" => "hello#world"
+    get "/hello/world" => "hello#world"
   end
 
-  # Enable cache classes. Production style.
-  config.cache_classes = true
+  # Eager load. Production style.
+  config.eager_load = true
+
+  # Silence deprecation warning about production log levels.
+  config.log_level = :debug
 
   # Here you could remove some middlewares, for example
   # Rack::Lock, AD::Flash and AD::BestStandardsSupport below.
@@ -43,12 +46,13 @@ class MyApp < Rails::Application
   config.middleware.delete "ActionDispatch::BestStandardsSupport"
 
   # We need a secret token for session, cookies, etc.
-  config.secret_token = "49837489qkuweoiuoqwehisuakshdjksadhaisdy78o34y138974xyqp9rmye8yrpiokeuioqwzyoiuxftoyqiuxrhm3iou1hrzmjk"
+  config.secret_key_base = "49837489qkuweoiuoqwehisuakshdjksadhaisdy78o34y138974xyqp9rmye8yrpiokeuioqwzyoiuxftoyqiuxrhm3iou1hrzmjk"
 end
 
 # This is a barebone controller. One good reference can be found here:
 # http://piotrsarnacki.com/2010/12/12/lightweight-controllers-with-rails3/
 class HelloController < ActionController::Metal
+  include AbstractController::Rendering
   include ActionController::Rendering
 
   def world
