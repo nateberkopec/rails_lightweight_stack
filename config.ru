@@ -5,26 +5,14 @@
 # And access:
 #
 #   http://localhost:3000/hello/world
-#
-# We are using Bundler in this example, but we could also
-# have used rubygems:
-#
-#   require "rubygems"
-#
-#   gem "actionpack"
-#   gem "railties"
-#
-#   require "rails"
-#   require "rails/all"
 
-# The following lines should come as no surprise. Except by using
-# ActionController::Metal, it follows the same structure of
-# config/application.rb, config/environment.rb and config.ru
-# existing in any Rails 4 app. Here they are simply in one
-# file and without the comments.
+# This example app follows the same structure of config/application.rb,
+# config/environment.rb and config.ru that exists in any Rails 4 app. Here,
+# we're just doing it in one file.
 require "rails"
 # We're only going to load the parts of Rails we need for this example. Usually,
 # you would just require "rails/all", requiring all of the below parts at once.
+# I've commented out the parts that would normally be loaded by "rails/all".
 require "action_controller"
 # require "active_record"
 # require "action_view"
@@ -33,9 +21,7 @@ require "action_controller"
 # require "sprockets"
 
 class MyApp < Rails::Application
-  routes.append do
-    get "/hello/world" => "hello#world"
-  end
+  routes.append { root "hello#world" }
 
   # Eager load. Production style.
   config.eager_load = true
