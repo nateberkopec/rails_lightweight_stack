@@ -61,12 +61,5 @@ end
 # Initialize the app (originally in config/environment.rb)
 MyApp.initialize!
 
-# Print the stack for fun!
-puts ">> Starting Rails lightweight stack"
-Rails.configuration.middleware.each do |middleware|
-  puts "use #{middleware.inspect}"
-end
-puts "run #{Rails.application.class.name}.routes"
-
 # Run it (originally in config.ru)
 run MyApp
