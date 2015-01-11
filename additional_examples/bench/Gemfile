@@ -6,3 +6,4 @@ gem "sinatra-contrib", "~> 1.4"
 
 gem "puma"
 
+gem "ruby-prof"
