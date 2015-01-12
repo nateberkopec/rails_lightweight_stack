@@ -1,10 +1,10 @@
 require 'sinatra'
 require "sinatra/json"
-#require "ruby-prof"
+# require "ruby-prof"
 
-set :server, 'puma'
+set :server, 'thin'
 
-#use Rack::RubyProf, :path => './temp/profile_sinatra'
+# use Rack::RubyProf, :path => './temp/profile_sinatra'
 
 get '/' do
   json "Hello World!"
