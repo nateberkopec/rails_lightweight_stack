@@ -17,6 +17,7 @@ require "action_controller"
 # require "active_record"
 # require "action_view"
 # require "action_mailer"
+# require "active_job"
 # require "rails/test_unit"
 # require "sprockets"
 
