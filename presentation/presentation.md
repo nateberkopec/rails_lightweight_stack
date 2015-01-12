@@ -11,25 +11,42 @@ with @nateberkopec
 
 ![](img/pufferfish.jpg)
 
+^ Rails has a reputation
+^ Big
+^ Slow
+^ Not Web Scale
+
 ---
 
 > Rails is over. It's a bloated meta framework that requires enormous amounts of peripheral knowledge to understand.
 -- Hacker News
+
+^ What's a meta framework?
 
 ---
 
 > [Lotus] aims to bring back Object Oriented Programming to web development
 -- Lotus web framework
 
+^ Lotus is a small project, never really caught on. But I think it makes some
+^ interesting claims.
+^ Bringing OOP back like JT
+^ Where did OOP go?
+^ Implying Rails isn't OOP
+
 ---
 
 > Lotus is made of standalone frameworks (controllers, views, etc.)
 -- Lotus web framework
 
+^ I don't think they knew Rails is made of several standalone frameworks.
+
 ---
 
 > Lotus is lightweight, fast and testable.
 -- Lotus web framework
+
+^ I think they're implying that Rails can't be lightweight and fast.
 
 ---
 
@@ -41,10 +58,24 @@ with @nateberkopec
 * Express: 4,974 commits and 165 contributors
 * Ruby: 38,223 commits and 38 (?) contributors
 
+^ I want to use 10 years, 50,000 commits, and 2,500 contributors in production
+^ I also don't want it to feel bloated
+
 ---
 
 > "Rails will become more modular, starting with a rails-core, and including the ability to opt in or out of specific components."
 -- Yehuda Katz, 2008
+
+^ History lesson!
+^ Rails 3 release in August 2010
+
+---
+
+> All forward progress stalled for nearly two years, it's *still* slower than Rails 2, Bundler is a nightmare, Node.js won
+-- Jeremy Ashkenas, 2012
+
+^ Its not slower anymore, bundler is awesome
+^ but he's right about forward progress
 
 ---
 
@@ -52,12 +83,6 @@ with @nateberkopec
 # [fit] bloated*
 
 *If you let it.
-
----
-
-# [fit] Lets build
-# [fit] a Rails app
-# [fit] in 15 lines!
 
 ---
 
@@ -91,6 +116,11 @@ http://guides.rubyonrails.org/initialization.html
 
 ---
 
+# [fit] Lets compress five files
+# [fit] into one!
+
+---
+
 # Gemfile
 
 ```ruby
@@ -103,10 +133,13 @@ This puts a *lot* of stuff in the Gemfile.lock
 
 ---
 
+# config.ru
+
 ```ruby
 # normally happens in application.rb via "require 'rails/all'"
 require "rails"
-require "action_controller"
+require "action_dispatch"
+# require "active_controller"
 # require "active_record"
 # require "action_view"
 # require "action_mailer"
@@ -115,22 +148,129 @@ require "action_controller"
 # require "sprockets"
 ```
 
+^ remember Lotus is made of standalone frameworks (controllers, views, etc.)?
+
 ---
 
 ```ruby
 # also happens in application.rb
 class MyApp < Rails::Application
   # config/routes.rb
-  routes.append { root "hello#world" }
+  routes.append { root to: Proc.new { [200,[],["Hello world!"]] } }
+
+  config.serve_static_files = false
 
   # We need a secret token for session, cookies, etc.
   # Usually via config/secrets.yaml
   config.secret_key_base = "insecure"
 end
 ```
+^ Yes you can mount Rack apps directly to routes
+^ Recall the Rack spec.
+^ A Rack application is a Ruby object (not a class) that responds to call.
+^ It takes exactly one argument, the environment and returns an Array of exactly
+^ three values: The status, the headers, and the body.
+^ If we don't include the below line, Rails will try to add the
+^ ActionDispatch::Static middleware, which tries to use ActionController.
+^ We haven't loaded ActionController, so we're going to set this to false
+^ Speaking of middleware...
+
+---
+```ruby
+use Rack::Sendfile
+use #<ActiveSupport::Cache:...>
+use Rack::Runtime
+use Rack::MethodOverride
+use ActionDispatch::RequestId
+use Rails::Rack::Logger
+use ActionDispatch::RemoteIp
+use ActionDispatch::Callbacks
+use ActionDispatch::Cookies
+use ActionDispatch::Session::CookieStore
+use ActionDispatch::Flash
+use ActionDispatch::ParamsParser
+use Rack::Head
+use Rack::ConditionalGet
+use Rack::ETag
+```
+
+^ Rack Sendfile lets our web server (nginx) serve static assets instead of our app server
+^ Activesupport adds some real basic caching for when we call cache in the app
+^ Rack::Runtime sets X-Runtime
+^ RemoteIp prevents IP spoofing attacks, any client can claim to have any IP address by setting the X-Forwarded-For header. we dont need this on heroku w/ssl.
 
 ---
 
+```ruby
+class MyApp < Rails::Application
+  config.middleware.delete ActionDispatch::Cookies
+end
+```
+
+---
+
+# Recap
+
+```ruby
+# config.ru
+require "rails"
+require "action_dispatch"
+
+class MyApp < Rails::Application
+  routes.append { root to: Proc.new { [200,[],["Hello world!"]] } }
+  config.secret_key_base = "insecure"
+end
+```
+
+---
+
+```ruby
+class HelloController < ActionController::Metal
+  include AbstractController::Rendering
+  include ActionController::Rendering
+
+  def world
+    render text: "Hello world!"
+  end
+end
+```
+
+---
+
+# ActionController::Metal
+
+* Inherits from AbstractController::Base
+* Doesn't include a lot of the things you normally get in Rails controllers
+* No layouts, no render, no nothin'
+
+^ Actioncontroller base does stuff like define
+
+---
+
+# All controllers are also Rack apps
+
+```ruby
+class HelloController < ActionController::Metal
+  include AbstractController::Rendering
+  include ActionController::Rendering
+
+  def world
+    render text: "Hello world!"
+  end
+end
+
+run HelloController.action(:world)
+# get 'hello', 'hello#index'
+# get 'hello', to: HelloController.action(:index)
+```
+
+---
+
+AbstractController::Rendering,AbstractController::Translation,AbstractController::AssetPaths,Helpers,HideActions,UrlFor,Redirecting,ActionView::Layouts,Rendering,Renderers::All,ConditionalGet,EtagWithTemplateDigest,RackDelegation,Caching,MimeResponds,ImplicitRender,StrongParameters,Cookies,Flash,RequestForgeryProtection,ForceSSL,Streaming,DataStreaming,AbstractController::Callbacks,Rescue,Instrumentation,ParamsWrapper
+
+^ Also the HTTP basic modules
+
+---
 # Recap
 
 ```ruby
@@ -141,48 +281,6 @@ class MyApp < Rails::Application
   routes.append { root "hello#world" }
   config.secret_key_base = "insecure"
 end
-```
-
----
-
-```ruby
-class HelloController < ActionController::Metal
-  include AbstractController::Rendering
-  include ActionController::Rendering
-
-  def world
-    render text: "Hello world!"
-  end
-end
-```
-
----
-
-# [fit] ActionController::Metal
-
----
-
-AbstractController::Rendering,AbstractController::Translation,AbstractController::AssetPaths,Helpers,HideActions,UrlFor,Redirecting,ActionView::Layouts, Rendering,Renderers::All,ConditionalGet,EtagWithTemplateDigest,RackDelegation,Caching,MimeResponds,ImplicitRender,StrongParameters,Cookies,Flash,RequestForgeryProtection,ForceSSL,Streaming,DataStreaming,HttpAuthentication::Basic::ControllerMethods, HttpAuthentication::Digest::ControllerMethods,HttpAuthentication::Token::ControllerMethods,  AbstractController::Callbacks,Rescue,Instrumentation,ParamsWrapper
-
----
-
-# [fit] AbstractController::Rendering
-
----
-
-# [fit] ActionController::Rendering
-
----
-# Recap
-
-```ruby
-require "rails"
-require "action_controller"
-
-class MyApp < Rails::Application
-  routes.append { root "hello#world" }
-  config.secret_key_base = "insecure"
-end
 
 class HelloController < ActionController::Metal
   include AbstractController::Rendering
@@ -192,27 +290,6 @@ class HelloController < ActionController::Metal
     render text: "Hello world!"
   end
 end
-```
-
----
-
-```ruby
-require "rails"
-require "action_controller"
-class MyApp < Rails::Application
-  routes.append { root "hello#world" }
-  config.secret_key_base = "insecure"
-end
-class HelloController < ActionController::Metal
-  include AbstractController::Rendering
-  include ActionController::Rendering
-
-  def world
-    render text: "Hello world!"
-  end
-end
-MyApp.initialize!
-run MyApp
 ```
 
 ---
@@ -225,6 +302,26 @@ MyApp.initialize!
 run MyApp
 ```
 
+---
+
+```ruby
+require "rails"
+require "action_controller"
+class MyApp < Rails::Application
+  routes.append { root "hello#world" }
+  config.secret_key_base = "insecure"
+end
+class HelloController < ActionController::Metal
+  include AbstractController::Rendering
+  include ActionController::Rendering
+
+  def world
+    render text: "Hello world!"
+  end
+end
+MyApp.initialize!
+run MyApp
+```
 ---
 
 # What do we get in return?
@@ -258,6 +355,8 @@ run MyApp
 * 70.7 MB stock Rails
 * 26.7 MB Sinatra
 
+Most of the difference between Rails and Sinatra at this point is ActiveSupport
+
 ---
 
 # Speed differences from stock Rails on a microbench
@@ -270,36 +369,12 @@ _But_ these differences are on the order of single-digit milliseconds. App code 
 
 ---
 
-# Expanding: ActiveRecord
-
----
-
-# Expanding: ActionView
-
----
-
-# Expanding: Rails Server
-
----
-
-# Expanding: ActionMailer
-
----
-
-# Expanding: Tests
-
----
-
-# [fit] Which decisions
-# [fit] _matter?_
-
----
-
 # Why is this modularity interesting?
 
 * Improves your understanding of Rails internals
 * Faster and uses less memory
 * Win arguments with internet haters
+* Yehuda spent 2 years on it, be grateful
 
 ---
 
@@ -321,7 +396,7 @@ end.initialize!
 
 ```
 
-This example requires a secrets.yml and gemfile
+This example requires a secrets.yml and gemfile (and the gemfile can't contain ActiveRecord)
 
 ---
 
@@ -338,3 +413,70 @@ end.initialize!
 ```
 
 This example can be run from a single file!
+
+---
+
+# Expanding: ActiveModel
+
+```ruby
+class Article
+  extend  ActiveModel::Naming
+  extend  ActiveModel::Translation
+  include ActiveModel::Validations
+  include ActiveModel::Conversion
+  attr_accessor :id, :name, :content
+
+  def self.all
+    @articles ||= []
+  end
+
+  ...etc
+end
+
+```
+
+---
+
+# Expanding: ActiveRecord
+
+* Add config/database.yml
+* Set up your database
+* Require ActiveRecord
+* Add a Rakefile and call ```Rails.application.load_tasks```
+
+---
+
+# Expanding: ActionView
+
+```ruby
+class HelloController < ActionController::Metal
+  include AbstractController::Rendering
+  include ActionController::Rendering
+  include ActionView::Layouts
+  append_view_path "#{Rails.root}/app/views"
+
+  def index
+    render "hello/index"
+  end
+end
+```
+
+---
+
+# Expanding: Rails Server
+
+* Add back bin/rails and you're set
+
+---
+
+# Expanding: ActionMailer
+
+* Just require ActionMailer and get to it
+
+---
+
+# Expanding: Tests
+
+* You can do tests in-file, or just require the test support (or your favorite test gem) and hop to it
+
+---
