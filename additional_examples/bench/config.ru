@@ -20,13 +20,19 @@ class MyApp < Rails::Application
   config.middleware.delete ActionDispatch::ShowExceptions
   config.middleware.delete ActionDispatch::DebugExceptions
   config.middleware.delete ActionDispatch::Callbacks
+  config.middleware.delete ActionDispatch::RequestId
   config.middleware.delete ActionDispatch::ParamsParser
   config.middleware.delete Rack::ConditionalGet
   config.middleware.delete Rack::ETag
   config.middleware.delete Rack::Head
 
   # Silence deprecation warning about production log levels.
-  config.log_level = :debug
+  config.log_level = :error
+
+  # Load only the parts of activesupport Rails needs
+  config.active_support.bare
+
+  config.logger = Logger.new(STDOUT)
 
   # We need a secret token for session, cookies, etc.
   config.secret_key_base = "49837489qkuweoiuoqwehisuakshdjksadhaisdy78o34y138974xyqp9rmye8yrpiokeuioqwzyoiuxftoyqiuxrhm3iou1hrzmjk"
@@ -44,9 +50,17 @@ end
 
 MyApp.initialize!
 
-#use Rack::RubyProf, :path => './temp/profile'
+# use Rack::RubyProf, :path => './temp/profile'
+
+puts ">> Starting Rails ultra lightweight stack"
+Rails.configuration.middleware.each do |middleware|
+  puts "use #{middleware.inspect}"
+end
+puts "run #{Rails.application.class.name}.routes"
 
 run MyApp
+#run HelloController.action(:world)
+
 
 # HTTP/1.1 200 OK
 # Transfer-Encoding: Identity
@@ -62,38 +76,38 @@ run MyApp
 
 # ab -n 5000 -c 10 http://localhost:3000/
 
-# Server Software:
-# Server Hostname:        localhost
-# Server Port:            3000
+# Server Software:        thin
+# Server Hostname:        127.0.0.1
+# Server Port:            9292
 
 # Document Path:          /
 # Document Length:        14 bytes
 
 # Concurrency Level:      10
-# Time taken for tests:   7.333 seconds
+# Time taken for tests:   4.832 seconds
 # Complete requests:      5000
 # Failed requests:        0
-# Total transferred:      750000 bytes
+# Total transferred:      455000 bytes
 # HTML transferred:       70000 bytes
-# Requests per second:    681.82 [#/sec] (mean)
-# Time per request:       14.667 [ms] (mean)
-# Time per request:       1.467 [ms] (mean, across all concurrent requests)
-# Transfer rate:          99.88 [Kbytes/sec] received
+# Requests per second:    1034.68 [#/sec] (mean)
+# Time per request:       9.665 [ms] (mean)
+# Time per request:       0.966 [ms] (mean, across all concurrent requests)
+# Transfer rate:          91.95 [Kbytes/sec] received
 
 # Connection Times (ms)
 #               min  mean[+/-sd] median   max
-# Connect:        0    0   6.2      0     244
-# Processing:     5   14   2.1     14      31
-# Waiting:        3   12   1.9     12      28
-# Total:          5   15   6.5     14     258
+# Connect:        0    0   0.1      0       1
+# Processing:     1    9   2.2      9      24
+# Waiting:        1    8   2.2      8      18
+# Total:          2   10   2.2      9      24
 
 # Percentage of the requests served within a certain time (ms)
-#   50%     14
-#   66%     15
-#   75%     16
-#   80%     16
-#   90%     17
-#   95%     18
-#   98%     19
-#   99%     20
-#  100%    258 (longest request)
+#   50%      9
+#   66%     10
+#   75%     11
+#   80%     11
+#   90%     12
+#   95%     14
+#   98%     15
+#   99%     17
+#  100%     24 (longest request)
