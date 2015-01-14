@@ -173,7 +173,76 @@ end
 ^ If we don't include the below line, Rails will try to add the
 ^ ActionDispatch::Static middleware, which tries to use ActionController.
 ^ We haven't loaded ActionController, so we're going to set this to false
-^ Speaking of middleware...
+
+
+---
+
+# Recap
+
+```ruby
+# config.ru
+require "rails"
+require "action_dispatch"
+
+class MyApp < Rails::Application
+  routes.append { root to: Proc.new { [200,[],["Hello world!"]] } }
+  config.serve_static_files = false
+  config.secret_key_base = "insecure"
+end
+```
+
+---
+
+```ruby
+# config/environment.rb
+MyApp.initialize!
+
+# config.ru
+run MyApp
+```
+
+---
+
+# Recap
+
+```ruby
+# config.ru
+require "rails"
+require "action_dispatch"
+
+class MyApp < Rails::Application
+  routes.append { root to: Proc.new { [200,[],["Hello world!"]] } }
+  config.serve_static_files = false
+  config.secret_key_base = "insecure"
+end
+
+# config/environment.rb
+MyApp.initialize!
+
+# config.ru
+run MyApp
+```
+
+---
+
+```
+bundle exec rackup
+````
+
+```
+$ katana:~ nateberkopec$ curl 127.0.0.1:9292
+Hello world!
+$ katana:~ nateberkopec$ nateberkopec$ curl -I 127.0.0.1:9292
+HTTP/1.1 200 OK
+Content-Type: text/html
+ETag: W/"86fb269d190d2c85f6e0468ceca42a20"
+Cache-Control: max-age=0, private, must-revalidate
+X-Request-Id: e92f0ec1-d373-4af9-9b0d-1df14f265b78
+X-Runtime: 0.000824
+Transfer-Encoding: chunked
+Connection: close
+Server: thin
+```
 
 ---
 ```ruby
@@ -209,21 +278,6 @@ end
 
 ---
 
-# Recap
-
-```ruby
-# config.ru
-require "rails"
-require "action_dispatch"
-
-class MyApp < Rails::Application
-  routes.append { root to: Proc.new { [200,[],["Hello world!"]] } }
-  config.secret_key_base = "insecure"
-end
-```
-
----
-
 ```ruby
 class HelloController < ActionController::Metal
   include AbstractController::Rendering
@@ -234,7 +288,6 @@ class HelloController < ActionController::Metal
   end
 end
 ```
-
 ---
 
 # ActionController::Metal
@@ -290,36 +343,9 @@ class HelloController < ActionController::Metal
     render text: "Hello world!"
   end
 end
-```
 
----
-
-```ruby
-# config/environment.rb
 MyApp.initialize!
 
-# config.ru
-run MyApp
-```
-
----
-
-```ruby
-require "rails"
-require "action_controller"
-class MyApp < Rails::Application
-  routes.append { root "hello#world" }
-  config.secret_key_base = "insecure"
-end
-class HelloController < ActionController::Metal
-  include AbstractController::Rendering
-  include ActionController::Rendering
-
-  def world
-    render text: "Hello world!"
-  end
-end
-MyApp.initialize!
 run MyApp
 ```
 ---
@@ -381,7 +407,16 @@ _But_ these differences are on the order of single-digit milliseconds. App code 
 # Your homework
 
 * Don't use rails/all
+* Consider ActionController::Metal
 * Try starting from a single file the next time your start a Rails app
+
+---
+
+# [fit] Thanks
+# [fit] for
+# [fit] Listening!
+
+twitter/github: @nateberkopec
 
 ---
 
@@ -480,3 +515,5 @@ end
 * You can do tests in-file, or just require the test support (or your favorite test gem) and hop to it
 
 ---
+
+![](img/google.png)
