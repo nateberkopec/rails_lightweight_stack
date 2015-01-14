@@ -1,4 +1,4 @@
-# Run this file with "bundle exec rackup Appa.rb" to run the serve
+# Run this file with "bundle exec rackup Appa.rb" to run the server
 # Run this file with "bundle exec ruby Appa.rb" to run the tests
 
 require "minitest" # Need to bring our testing library
