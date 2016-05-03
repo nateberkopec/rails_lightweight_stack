@@ -5,7 +5,7 @@
 # And access:
 #
 #   http://localhost:3000/hello/world
-
+#
 # This example app follows the same structure of config/application.rb,
 # config/environment.rb and config.ru that exists in any Rails 4 app. Here,
 # we're just doing it in one file.
