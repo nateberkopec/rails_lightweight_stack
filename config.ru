@@ -9,11 +9,11 @@
 # This example app follows the same structure of config/application.rb,
 # config/environment.rb and config.ru that exists in any Rails 4 app. Here,
 # we're just doing it in one file.
-require "rails"
+#
 # We're only going to load the parts of Rails we need for this example. Usually,
 # you would just require "rails/all", requiring all of the below parts at once.
 # I've commented out the parts that would normally be loaded by "rails/all".
-require "action_controller"
+require "action_controller/railtie"
 # require "active_record"
 # require "action_view"
 # require "action_mailer"
@@ -27,11 +27,14 @@ class MyApp < Rails::Application
   # Eager load. Production style.
   config.eager_load = true
 
+  # Remove any HTML-related middleware
+  config.api_only = true
+
   # Silence deprecation warning about production log levels.
   config.log_level = :debug
 
   # We need a secret token for session, cookies, etc.
-  config.secret_key_base = "49837489qkuweoiuoqwehisuakshdjksadhaisdy78o34y138974xyqp9rmye8yrpiokeuioqwzyoiuxftoyqiuxrhm3iou1hrzmjk"
+  config.secret_key_base = "whatever"
 end
 
 # This is a barebone controller. One good reference can be found here:

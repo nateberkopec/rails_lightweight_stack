@@ -5,7 +5,7 @@ class MyApp < Rails::Application
   routes.append { root to: proc{ [200,{},["Hello world!"]] }  }
 
   # We need a secret token for session, cookies, etc.
-  config.secret_key_base = "49837489qkuweoiuoqwehisuakshdjksadhaisdy78o34y138974xyqp9rmye8yrpiokeuioqwzyoiuxftoyqiuxrhm3iou1hrzmjk"
+  config.secret_key_base = "whatever"
 end
 
 # Initialize the app (originally in config/environment.rb)

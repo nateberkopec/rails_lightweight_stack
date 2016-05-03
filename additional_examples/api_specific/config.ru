@@ -26,6 +26,8 @@ class MyApp < Rails::Application
   config.middleware.delete Rack::MethodOverride # only needed for browsers
   config.middleware.delete Rack::Lock # Threadsafe, baby!
 
+  # or config.api_only = true
+
   # Silence deprecation warning about production log levels.
   config.log_level = :debug
 
